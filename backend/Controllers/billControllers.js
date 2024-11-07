@@ -166,3 +166,32 @@ const getBill = async (req, res) => {
     });
 }
 
+const editBill = async (req, res) => {
+    const { userId, billId } = req.params;
+    const user = await Users.findById(userId);
+
+    if (!user) {
+        return res.status(200).json({ userIdNotFound: "User not found" });
+    }
+    const { toBePaidOn,  category, billNumber, amount,  } = req.body;
+
+    try {
+        
+
+        const bill = user.bills.id(billId);
+        if (!bill) {
+            return res.status(200).json({ billNotFound: "Bill not found" });
+        }
+
+        bill.toBePaidOn = toBePaidOn || bill.toBePaidOn;
+        bill.category = category || bill.category;
+        bill.amount = amount || bill.amount;
+        bill.billNumber = billNumber || bill.billNumber;
+
+        await user.save();
+        return res.status(200).json({ success: "Bill updated successfully", updatedBill: bill });
+    } catch (error) {
+        console.error("Error editing bill:", error);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+};
