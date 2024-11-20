@@ -7,6 +7,11 @@
     border-radius: 10px;
   }
 
+  .finance-tracker{
+    height: 100vh;
+    overflow-y: scroll;
+  }
+
   .chartContainer{
     margin-top: 50px;
     margin-bottom: 50px;
@@ -35,13 +40,13 @@
   }
   
   .thead {
-    background-color: #4caf50;
     color: white;
   }
   
   .tr {
     text-align: left;
     border-bottom: 1px solid #ddd;
+    
   }
   
   .th, .td {

@@ -7,6 +7,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import './Dashboard.module.css'; // Import the CSS file
 import Styles from "./Dashboard.module.css";
+import { useColour } from '../../Context/UseContext';
 
 // Register Chart.js components and the data labels plugin
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ChartDataLabels);
@@ -17,6 +18,23 @@ const FinanceTracker = () => {
 
   const [entries, setEntries] = useState([]);
   const contentRef = useRef(); // Reference for PDF generation
+
+  const disease = localStorage.getItem("disease");
+
+  const { tritanopia, protanopia, deuteranopia, monochromacy } = useColour();
+  let colorsToUse;
+
+  if (disease === "protanopia") {
+    colorsToUse = protanopia.use;
+  } else if (disease === "tritanopia") {
+    colorsToUse = tritanopia.use;
+  } else if (disease === "deuteranopia") {
+    colorsToUse = deuteranopia.use;
+  } else if (disease === "monochromacy") {
+    colorsToUse = monochromacy.use;
+  } else {
+    colorsToUse = ["#000000"];
+  }
 
   // Fetch finance data from the API
   useEffect(() => {
@@ -59,9 +77,9 @@ const FinanceTracker = () => {
       {
         label: 'Total Amount ($)',
         data: groupedEntries.map((entry) => entry.totalAmount),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        backgroundColor: colorsToUse[3],
         
-        borderColor: 'rgba(75, 192, 192, 1)',
+        borderColor: colorsToUse[3],
         borderWidth: 2,
       },
     ],
@@ -111,7 +129,7 @@ const FinanceTracker = () => {
       <div ref={contentRef} className="content">
         <h2>Finance Summary</h2>
         {entries.length === 0 ? (
-          <p className="loading">Loading data...</p>
+          <p className="loading">No expenses found.</p>
         ) : (
           <>
             {/* Render the Bar chart */}
@@ -122,17 +140,17 @@ const FinanceTracker = () => {
             {/* Render Finance Summary */}
             <h1 className={Styles.title}>Expenses Summary by Category</h1>
             <table className={Styles.table}>
-              <thead className={Styles.thead}>
-                <tr className={Styles.tr}>
-                  <th className={Styles.th}>Category</th>
-                  <th className={Styles.th}>Total Amount</th>
+              <thead className={Styles.thead} style={{ backgroundColor: colorsToUse[3], color: 'white' }}>
+                <tr  className={Styles.tr}>
+                  <th style={{ color:'#FFFFFF' }} className={Styles.th}>Category</th>
+                  <th style={{ color:'#FFFFFF' }} className={Styles.th}>Total Amount</th>
                 </tr>
               </thead>
               <tbody className={Styles.tbody}>
                 {groupedEntries.map((expense, index) => (
                   <tr className={Styles.tr} key={index}>
                     <td className={Styles.td}>{expense.category}</td>
-                    <td className={Styles.td}>${expense.totalAmount.toFixed(2)}</td>
+                    <td style={{ color: colorsToUse[3] }} className={Styles.td}>${expense.totalAmount.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>

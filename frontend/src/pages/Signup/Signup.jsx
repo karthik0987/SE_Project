@@ -6,7 +6,6 @@ import { Flip, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
-
   const userId = localStorage.getItem("userId");
 
   const [signup, setSignup] = useState({
@@ -14,11 +13,11 @@ const Signup = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    diseases: [],
+    diseases: [], // Keep it as an array
   });
 
-  const [avoid, setAvoid] = useState([]); 
-  const [use, setUse] = useState([]); 
+  const [avoid, setAvoid] = useState([]);
+  const [use, setUse] = useState([]);
   const navigate = useNavigate();
 
   const optionNumbers = [
@@ -32,37 +31,26 @@ const Signup = () => {
     setSignup({ ...signup, [e.target.name]: e.target.value });
   };
 
-  const handleCheckboxChange = (e) => {
-    const { value, checked } = e.target;
-
-    let newDiseases = [...signup.diseases];
-
-    if (checked) {
-      newDiseases = [...newDiseases, value];
-    } else {
-      newDiseases = newDiseases.filter((option) => option !== value);
-    }
+  const handleRadioChange = (e) => {
+    const value = e.target.value;
 
     setSignup((prevState) => ({
       ...prevState,
-      diseases: newDiseases,
+      diseases: [value], // Set selected disease as an array
     }));
 
     let newAvoid = [];
     let newUse = [];
 
-    if (
-      newDiseases.includes("deuteranopia") ||
-      newDiseases.includes("protanopia")
-    ) {
+    if (value === "deuteranopia" || value === "protanopia") {
       newAvoid = ["red", "green", "brown", "orange"];
       newUse = ["blue", "yellow", "purple", "gray"];
     }
-    if (newDiseases.includes("tritanopia")) {
+    if (value === "tritanopia") {
       newAvoid = ["blue", "yellow", "green"];
       newUse = ["red", "pink", "gray", "black"];
     }
-    if (newDiseases.includes("monochromacy")) {
+    if (value === "monochromacy") {
       newAvoid = ["all colors"];
       newUse = ["black", "white", "gray"];
     }
@@ -92,16 +80,15 @@ const Signup = () => {
 
       if (res.data.EnterAllDetails) {
         toast.error(res.data.EnterAllDetails, toastdiseases);
-        return
+        return;
       } else if (res.data.AlreadyExist) {
         toast.error(res.data.AlreadyExist, toastdiseases);
-        return
-      }
-      
-      else {
+        return;
+      } else {
         toast.success("Signup successful! Redirecting...");
         localStorage.setItem("name", res.data.name);
         localStorage.setItem("userId", res.data._id);
+        localStorage.setItem("disease", res.data.diseases[0]?.disease);
         setTimeout(() => {
           navigate(`/finance/${res.data.name}`);
         }, 1000);
@@ -118,7 +105,9 @@ const Signup = () => {
         <h2>Signup</h2>
 
         <div>
+        <label htmlFor="name">Name:</label>
           <input
+            id="name"
             placeholder="Enter Your Name"
             type="text"
             name="name"
@@ -128,7 +117,9 @@ const Signup = () => {
           />
         </div>
         <div>
+        <label htmlFor="email">Email:</label>
           <input
+            id="email"
             placeholder="Enter Your Email"
             type="email"
             name="email"
@@ -138,7 +129,9 @@ const Signup = () => {
           />
         </div>
         <div>
+        <label htmlFor="password">Password:</label>
           <input
+            id="password"
             placeholder="Enter Your Password"
             type="password"
             name="password"
@@ -149,7 +142,9 @@ const Signup = () => {
         </div>
 
         <div>
+        <label htmlFor="confirmPassword">Confirm Password:</label>
           <input
+            id="confirmPassword"
             placeholder="Confirm Your Password"
             type="password"
             name="confirmPassword"
@@ -160,16 +155,17 @@ const Signup = () => {
         </div>
 
         <div>
-          <h4 className={styles.colorHeading}>Select diseases</h4>
+          <h4 className={styles.colorHeading}>Select a disease</h4>
           <div className={styles.colorDiv}>
             {optionNumbers.map((option) => (
-              <label key={option} className={styles.checkboxLabel}>
+              <label htmlFor={option} key={option} className={styles.radioLabel}>
                 <input
-                  type="checkbox"
+                  id={option}
+                  type="radio"
                   name="diseases"
                   value={option}
-                  onChange={handleCheckboxChange}
-                  checked={signup.diseases.includes(option)}
+                  onChange={handleRadioChange}
+                  checked={signup.diseases.includes(option)} // Check if the option is selected
                 />
                 <p className={styles.color}>{option}</p>
               </label>
@@ -182,7 +178,7 @@ const Signup = () => {
         </button>
         <p className={styles.text}>
           Already have an account?{" "}
-          <Link to="/" className={styles.link}>
+          <Link to="/" className={styles.loginLink}>
             Login
           </Link>
         </p>
